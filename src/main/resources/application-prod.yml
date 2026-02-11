@@ -1,0 +1,94 @@
+
+
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: coop-votacao
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://mysql-prod:3306/coop_votacao?useSSL=true&requireSSL=true}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 20
+    show-sql: false
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:redis-prod}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      connect-timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 50
+          max-idle: 20
+          min-idle: 10
+          max-wait: 2000ms
+        shutdown-timeout: 100ms
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092}
+    producer:
+      compression-type: snappy
+      batch-size: 32768
+      buffer-memory: 67108864
+      properties:
+        linger.ms: 10
+        request.timeout.ms: 30000
+        delivery.timeout.ms: 120000
+        max.block.ms: 60000
+
+logging:
+  level:
+    root: INFO
+    br.com.coop.votacao: INFO
+    org.springframework.kafka: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /var/log/coop-votacao/application.log
+    max-size: 10MB
+    max-history: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      environment: production
+
+api:
+  cpf-validation-url: https://user-info.herokuapp.com/users
+  voting-result-topic: pauta-resultados

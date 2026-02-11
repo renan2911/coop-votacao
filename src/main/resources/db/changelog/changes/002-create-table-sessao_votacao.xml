@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="002-create-table-sessao_votacao" author="coop-votacao">
+        <createTable tableName="sessao_votacao">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_sessao_votacao"/>
+            </column>
+            <column name="pauta_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inicio" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fim" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)" defaultValue="ABERTA">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_sim" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_nao" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="sessao_votacao"
+                baseColumnNames="pauta_id"
+                constraintName="fk_sessao_votacao_pauta"
+                referencedTableName="pauta"
+                referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>
